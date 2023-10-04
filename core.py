@@ -272,19 +272,35 @@ def read_feed_rss(url: str, sanitizeLink: bool = True)->list[dict]:
         feed = feedparser.parse(url)
         for entry in feed.entries:
             item = {}
-            item["title"] = entry.title
-            if sanitizeLink:
-                item["link"] = sanitize_link(entry.link)
+            if entry.title:
+                item["title"] = entry.title
             else:
-                item["link"] = entry.link
-            item["published"] = time.strftime('%Y-%m-%d %H:%M:%S', entry.published_parsed)
-            item["published_parsed"] = entry.published_parsed
-            item["summary"] = entry.summary
+                item["title"] = None
+            if entry.link:
+                if sanitizeLink:
+                    item["link"] = sanitize_link(entry.link)
+                else:
+                    item["link"] = entry.link
+            else:
+                item["link"] = None
+            if entry.published_parsed:
+                item["published"] = time.strftime('%Y-%m-%d %H:%M:%S', entry.published_parsed)
+                item["published_parsed"] = entry.published_parsed
+            else:
+                item["published"] = None
+                item["published_parsed"] = None
+            if entry.summary:
+                item["summary"] = entry.summary
+            else:
+                item["summary"] = None
             item["id"] = entry.id
             tags: list[str] = []
-            if entry.tags:
-                for t in entry.tags:
-                    tags.append(t['term'].strip())
+            try:
+                if entry.tags:
+                    for t in entry.tags:
+                        tags.append(t['term'].strip())
+            except Exception as e:
+                ...
             item["tags"] = tags
             result.append(item)
         return result
