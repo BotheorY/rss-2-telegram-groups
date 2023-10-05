@@ -49,7 +49,7 @@ async def do_run():
                     continue
                 rss = core.read_feed_rss(job['rss'])
                 if not rss:
-                    return False
+                    continue
                 for rss_item in rss:
                     print(f"\n\tProcessing RSS item \"{rss_item['title']}\"...")
                     rss_item_sent = False

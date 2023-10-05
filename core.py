@@ -248,7 +248,7 @@ def save_jobs():
     value: str = json.dumps(jobs)
     set_rep.set_key_value('main', 'jobs', value)
 
-def read_feed_rss(url: str, sanitizeLink: bool = True)->list[dict]:
+def read_feed_rss(url: str, sanitizeLink: bool = True, asc_order_by_date: bool = True)->list[dict]:
 
     def sanitize_link(link: str)->str:
         parsed_url = urlparse(link)
@@ -287,7 +287,7 @@ def read_feed_rss(url: str, sanitizeLink: bool = True)->list[dict]:
                 item["published"] = time.strftime('%Y-%m-%d %H:%M:%S', entry.published_parsed)
                 item["published_parsed"] = entry.published_parsed
             else:
-                item["published"] = None
+                item["published"] = ''
                 item["published_parsed"] = None
             if entry.summary:
                 item["summary"] = entry.summary
@@ -303,6 +303,8 @@ def read_feed_rss(url: str, sanitizeLink: bool = True)->list[dict]:
                 ...
             item["tags"] = tags
             result.append(item)
+        if asc_order_by_date and result and (len(result) > 0):
+            result.sort(key=lambda x: x['published'])
         return result
     except Exception as e:
         last_read_feed_rss_error = str(e)
